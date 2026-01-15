@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Euler Phase Lean - 2D Proof Map</title>
+  <style>
+    :root {
+      --bg: #0b0f14;
+      --card: #0f1721;
+      --border: #1c2a3a;
+      --text: #e6eef7;
+      --dim: #6b7d8c;
+      --accent: #4a9eff;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, monospace;
+      background: var(--bg);
+      color: var(--text);
+      overflow: hidden;
+      height: 100vh;
+    }
+    #header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      padding: 12px 20px;
+      background: var(--card);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      z-index: 100;
+    }
+    #header h1 {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--accent);
+    }
+    #search {
+      flex: 1;
+      max-width: 300px;
+      padding: 8px 12px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text);
+      font-size: 13px;
+    }
+    #search:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+    #legend {
+      position: fixed;
+      top: 60px;
+      right: 20px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px;
+      z-index: 100;
+      max-height: calc(100vh - 100px);
+      overflow-y: auto;
+    }
+    #legend h3 {
+      font-size: 12px;
+      color: var(--dim);
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 4px 0;
+      cursor: pointer;
+      opacity: 1;
+      transition: opacity 0.2s;
+    }
+    .legend-item:hover { opacity: 0.8; }
+    .legend-item.filtered { opacity: 0.3; }
+    .legend-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+    }
+    .legend-label {
+      font-size: 12px;
+      color: var(--text);
+    }
+    #canvas {
+      position: absolute;
+      top: 50px;
+      left: 0;
+      right: 0;
+      bottom: 0;
+    }
+    #tooltip {
+      position: fixed;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 10px 14px;
+      font-size: 12px;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.15s;
+      z-index: 200;
+      max-width: 300px;
+    }
+    #tooltip.visible { opacity: 1; }
+    #tooltip .name { font-weight: 600; color: var(--accent); }
+    #tooltip .kind { color: var(--dim); margin-left: 8px; }
+    #tooltip .family { display: block; margin-top: 4px; color: var(--dim); }
+    #stats {
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      font-size: 11px;
+      color: var(--dim);
+    }
+  </style>
+</head>
+<body>
+  <div id="header">
+    <h1>Euler Phase Lean - 2D Proof Map</h1>
+    <input type="text" id="search" placeholder="Search declarations...">
+  </div>
+  <div id="legend">
+    <h3>Module Families</h3>
+  </div>
+  <canvas id="canvas"></canvas>
+  <div id="tooltip"></div>
+  <div id="stats"></div>
+
+  <script src="euler_phase_proofs_data.js"></script>
+  <script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const tooltip = document.getElementById('tooltip');
+    const search = document.getElementById('search');
+    const legend = document.getElementById('legend');
+    const stats = document.getElementById('stats');
+
+    let width, height;
+    let offsetX = 0, offsetY = 0;
+    let scale = 1;
+    let isDragging = false;
+    let lastX, lastY;
+    let hoveredNode = null;
+    let filteredFamilies = new Set();
+    let searchTerm = '';
+
+    function resize() {
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight - 50;
+      draw();
+    }
+
+    function worldToScreen(x, y) {
+      const cx = width / 2 + offsetX;
+      const cy = height / 2 + offsetY;
+      const sx = cx + (x - 0.5) * Math.min(width, height) * 0.8 * scale;
+      const sy = cy + (y - 0.5) * Math.min(width, height) * 0.8 * scale;
+      return [sx, sy];
+    }
+
+    function screenToWorld(sx, sy) {
+      const cx = width / 2 + offsetX;
+      const cy = height / 2 + offsetY;
+      const x = (sx - cx) / (Math.min(width, height) * 0.8 * scale) + 0.5;
+      const y = (sy - cy) / (Math.min(width, height) * 0.8 * scale) + 0.5;
+      return [x, y];
+    }
+
+    function isVisible(item) {
+      if (filteredFamilies.has(item.family)) return false;
+      if (searchTerm && !item.name.toLowerCase().includes(searchTerm.toLowerCase())) return false;
+      return true;
+    }
+
+    function draw() {
+      ctx.fillStyle = '#0b0f14';
+      ctx.fillRect(0, 0, width, height);
+
+      // Draw edges
+      ctx.strokeStyle = 'rgba(74, 158, 255, 0.15)';
+      ctx.lineWidth = 1;
+      for (const [i, j] of eulerPhaseProofsData.edges) {
+        const a = eulerPhaseProofsData.items[i];
+        const b = eulerPhaseProofsData.items[j];
+        if (!isVisible(a) || !isVisible(b)) continue;
+        const [x1, y1] = worldToScreen(a.pos.x, a.pos.y);
+        const [x2, y2] = worldToScreen(b.pos.x, b.pos.y);
+        ctx.beginPath();
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(x2, y2);
+        ctx.stroke();
+      }
+
+      // Draw nodes
+      let visibleCount = 0;
+      for (const item of eulerPhaseProofsData.items) {
+        if (!isVisible(item)) continue;
+        visibleCount++;
+        const [x, y] = worldToScreen(item.pos.x, item.pos.y);
+        const radius = item === hoveredNode ? 10 : 6;
+        const color = familyColors[item.family] || '#666';
+
+        ctx.beginPath();
+        ctx.arc(x, y, radius, 0, Math.PI * 2);
+        ctx.fillStyle = color;
+        ctx.fill();
+
+        if (item === hoveredNode) {
+          ctx.strokeStyle = '#fff';
+          ctx.lineWidth = 2;
+          ctx.stroke();
+        }
+      }
+
+      stats.textContent = `${visibleCount} / ${eulerPhaseProofsData.items.length} declarations`;
+    }
+
+    function findNodeAt(sx, sy) {
+      const [wx, wy] = screenToWorld(sx, sy);
+      let closest = null;
+      let minDist = Infinity;
+      for (const item of eulerPhaseProofsData.items) {
+        if (!isVisible(item)) continue;
+        const dx = item.pos.x - wx;
+        const dy = item.pos.y - wy;
+        const dist = Math.sqrt(dx*dx + dy*dy);
+        if (dist < minDist && dist < 0.03 / scale) {
+          minDist = dist;
+          closest = item;
+        }
+      }
+      return closest;
+    }
+
+    function showTooltip(item, x, y) {
+      tooltip.innerHTML = `
+        <span class="name">${item.name}</span>
+        <span class="kind">${item.kind}</span>
+        <span class="family">${item.family}</span>
+      `;
+      tooltip.style.left = (x + 15) + 'px';
+      tooltip.style.top = (y + 15) + 'px';
+      tooltip.classList.add('visible');
+    }
+
+    function hideTooltip() {
+      tooltip.classList.remove('visible');
+    }
+
+    function buildLegend() {
+      const families = [...new Set(eulerPhaseProofsData.items.map(i => i.family))];
+      for (const family of families) {
+        const item = document.createElement('div');
+        item.className = 'legend-item';
+        item.innerHTML = `
+          <div class="legend-dot" style="background: ${familyColors[family] || '#666'}"></div>
+          <span class="legend-label">${family}</span>
+        `;
+        item.addEventListener('click', () => {
+          if (filteredFamilies.has(family)) {
+            filteredFamilies.delete(family);
+            item.classList.remove('filtered');
+          } else {
+            filteredFamilies.add(family);
+            item.classList.add('filtered');
+          }
+          draw();
+        });
+        legend.appendChild(item);
+      }
+    }
+
+    canvas.addEventListener('mousedown', (e) => {
+      isDragging = true;
+      lastX = e.clientX;
+      lastY = e.clientY;
+      canvas.style.cursor = 'grabbing';
+    });
+
+    canvas.addEventListener('mousemove', (e) => {
+      if (isDragging) {
+        offsetX += e.clientX - lastX;
+        offsetY += e.clientY - lastY;
+        lastX = e.clientX;
+        lastY = e.clientY;
+        draw();
+      } else {
+        const node = findNodeAt(e.clientX, e.clientY - 50);
+        if (node !== hoveredNode) {
+          hoveredNode = node;
+          draw();
+          if (node) {
+            showTooltip(node, e.clientX, e.clientY);
+          } else {
+            hideTooltip();
+          }
+        }
+      }
+    });
+
+    canvas.addEventListener('mouseup', () => {
+      isDragging = false;
+      canvas.style.cursor = 'default';
+    });
+
+    canvas.addEventListener('wheel', (e) => {
+      e.preventDefault();
+      const factor = e.deltaY > 0 ? 0.9 : 1.1;
+      scale *= factor;
+      scale = Math.max(0.5, Math.min(5, scale));
+      draw();
+    });
+
+    search.addEventListener('input', (e) => {
+      searchTerm = e.target.value;
+      draw();
+    });
+
+    window.addEventListener('resize', resize);
+    buildLegend();
+    resize();
+  </script>
+</body>
+</html>
