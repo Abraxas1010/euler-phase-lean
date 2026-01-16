@@ -68,6 +68,14 @@ This formalization answers: **the boundary operator naturally extends to the com
 
 ## Key Results
 
+### The God Equation
+
+| Theorem | Statement |
+|---------|-----------|
+| `euler_identity` | e^(iπ) + 1 = 0 (Euler's identity) |
+| `eulerBoundary_pi` | e^(iπ) = -1 |
+| `eulerBoundary_pi_div_two` | e^(iπ/2) = i |
+
 ### Euler Boundary Layer
 
 | Theorem | Statement |
@@ -105,7 +113,7 @@ This formalization answers: **the boundary operator naturally extends to the com
 ```
 HeytingLean/
 ├── Analysis/                     # Euler Boundary Layer
-│   ├── EulerBoundary.lean       # e^(iθ) core definition
+│   ├── EulerBoundary.lean       # e^(iθ) + God Equation
 │   ├── EulerFourierBridge.lean  # Fourier coefficient connection
 │   ├── EulerSpectralBridge.lean # Spectral measure integration
 │   └── EulerComplexGateway.lean # Complex gateway abstraction
@@ -116,6 +124,9 @@ HeytingLean/
 │   ├── AnalyticMaps.lean        # Holomorphic + RotationCompatible
 │   ├── ContourIntegral.lean     # Circle integrals + Cauchy formula
 │   └── CliffordComplexBridge.lean # Cl(2,0) ↔ ℂ correspondence
+│
+├── Ontology/                     # Philosophical Bridge Layer
+│   └── Monadology.lean          # Ontological Mathematics mapping
 │
 └── Tests/                        # Sanity Tests
     ├── Analysis/EulerBoundarySanity.lean
@@ -155,12 +166,31 @@ The 2D Clifford algebra Cl(2,0) has:
 
 The map `a + b·(e₁e₂) ↦ a + bi` establishes the correspondence, and "rotors" (unit-norm elements) are exactly the phases e^(iθ).
 
+### Ontological Mathematics Correspondence
+
+This formalization provides machine-checked proofs for the mathematical framework underlying **Ontological Mathematics** (Pythagorean Illuminati tradition, cf. Mike Hockney's "God Series").
+
+| Ontological Mathematics | HeytingLean | Module |
+|------------------------|-------------|--------|
+| **Monad** (dimensionless soul) | `ComplexNucleus` | `Ontology/Monadology.lean` |
+| **God Equation** e^(iπ)+1=0 | `euler_identity` | `Analysis/EulerBoundary.lean` |
+| **Frequency Domain** | Unit circle in ℂ | `FrequencyDomain` |
+| **Spacetime Domain** | Real projection {1, -1} | `SpacetimeDomain` |
+| **Soul-Body Docking** | Fourier transform | `EulerFourierBridge.lean` |
+| **Rotor/Spinor** | `Cl2Rep` + `rotor_is_phase` | `CliffordComplexBridge.lean` |
+
+**Key insight**: The marked/unmarked distinction (Boolean logic) is the *degenerate* case θ ∈ {0, π}. The full monad operates in the complex frequency domain with arbitrary phase θ ∈ [0, 2π). Material reality is the Fourier projection of frequency-domain monads.
+
+See `Ontology/Monadology.lean` for the complete bridge with philosophical documentation.
+
 ## References
 
 1. Spencer-Brown, G. (1969). *Laws of Form*. Allen & Unwin.
 2. Cauchy, A.-L. (1825). *Mémoire sur les intégrales définies*. Académie des Sciences.
 3. Hestenes, D. (1984). *Clifford Algebra to Geometric Calculus*. D. Reidel.
-4. Mathlib Contributors. *Mathlib4*. https://github.com/leanprover-community/mathlib4
+4. Hockney, M. et al. *The God Series*. (Ontological Mathematics / Pythagorean Illuminati).
+5. Leibniz, G.W. (1714). *Monadology*.
+6. Mathlib Contributors. *Mathlib4*. https://github.com/leanprover-community/mathlib4
 
 ## License
 
