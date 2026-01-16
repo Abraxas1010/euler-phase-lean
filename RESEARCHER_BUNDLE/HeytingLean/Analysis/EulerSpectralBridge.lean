@@ -1,5 +1,5 @@
 import HeytingLean.Analysis.EulerBoundary
-import Mathlib.Analysis.NormedSpace.LinearIsometry
+import Mathlib.Analysis.Normed.Operator.LinearIsometry
 
 namespace HeytingLean
 namespace Analysis
@@ -21,20 +21,23 @@ variable {E : Type} [NormedAddCommGroup E] [NormedSpace ℂ E]
 
 /-- If `A` is a complex linear isometry and `A v = λ • v` for a nonzero `v`, then `‖λ‖ = 1`. -/
 theorem norm_eigenvalue_eq_one_of_linearIsometry
-    (A : E →ₗᵢ[ℂ] E) {v : E} (hv : v ≠ 0) {λ : ℂ} (hAv : A v = λ • v) :
-    ‖λ‖ = 1 := by
+    (A : E →ₗᵢ[ℂ] E) {v : E} (hv : v ≠ 0) {μ : ℂ} (hAv : A v = μ • v) :
+    ‖μ‖ = 1 := by
   have hvnorm : ‖v‖ ≠ 0 := by
     simpa [norm_eq_zero] using hv
   have h :
-      ‖v‖ = ‖λ‖ * ‖v‖ := by
+      ‖v‖ = ‖μ‖ * ‖v‖ := by
     calc
-      ‖v‖ = ‖A v‖ := by simpa using (A.norm_map v).symm
-      _ = ‖λ • v‖ := by simpa [hAv]
-      _ = ‖λ‖ * ‖v‖ := by simpa using (norm_smul λ v)
+      ‖v‖ = ‖A v‖ := by
+        simp
+      _ = ‖μ • v‖ := by
+        simp [hAv]
+      _ = ‖μ‖ * ‖v‖ := by
+        simp [norm_smul]
   -- Cancel `‖v‖` (nonzero) from the right.
-  have : (1 : ℝ) = ‖λ‖ := by
+  have : (1 : ℝ) = ‖μ‖ := by
     apply mul_right_cancel₀ hvnorm
-    simpa [one_mul] using h.symm
+    simpa [one_mul] using h
   simpa using this.symm
 
 end EulerSpectral

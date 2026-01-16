@@ -32,17 +32,26 @@ lemma rotate_continuous (θ : ℝ) : Continuous (rotate θ) := by
   simpa [rotate] using (continuous_const.mul continuous_id)
 
 lemma rotate_isometry (θ : ℝ) : Isometry (rotate θ) := by
+  -- Work with `dist` (not `edist`) for stability under simp.
+  refine Isometry.of_dist_eq ?_
   intro z w
   -- `dist (a*z) (a*w) = ‖a‖ * dist z w`; here `‖a‖ = 1`.
-  simp [rotate, dist_eq_norm, mul_sub, Complex.norm_mul, norm_eulerBoundary]
+  -- Convert to norms and use multiplicativity.
+  simp [rotate, dist_eq_norm]
+  calc
+    ‖eulerBoundary θ * z - eulerBoundary θ * w‖
+        = ‖eulerBoundary θ * (z - w)‖ := by
+            simp [mul_sub]
+    _ = ‖eulerBoundary θ‖ * ‖z - w‖ := by
+            simp
+    _ = ‖z - w‖ := by
+            simp [norm_eulerBoundary]
 
 lemma rotate_norm (θ : ℝ) (z : ℂ) : ‖rotate θ z‖ = ‖z‖ := by
-  -- Special case of `rotate_isometry` with `w = 0`.
-  have h := (rotate_isometry θ) z 0
-  simpa [rotate, dist_eq_norm] using h
+  -- Directly: multiplication by a unit-norm scalar preserves norm.
+  simp [rotate, norm_eulerBoundary]
 
 end EulerComplex
 
 end Analysis
 end HeytingLean
-
