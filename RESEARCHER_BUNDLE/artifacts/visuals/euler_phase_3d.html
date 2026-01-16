@@ -6,12 +6,12 @@
   <title>Euler Phase Lean - 3D Proof Map</title>
   <style>
     :root {
-      --bg: #0b0f14;
-      --card: #0f1721;
-      --border: #1c2a3a;
-      --text: #e6eef7;
-      --dim: #6b7d8c;
-      --accent: #4a9eff;
+      --bg: #000000;
+      --card: #0a0a0a;
+      --border: #171717;
+      --text: #fafafa;
+      --dim: #a3a3a3;
+      --accent: #f59e0b;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -221,7 +221,7 @@
     }
 
     function draw() {
-      ctx.fillStyle = '#0b0f14';
+      ctx.fillStyle = '#000000';
       ctx.fillRect(0, 0, width, height);
 
       // Project all nodes and sort by z for proper depth ordering
@@ -240,8 +240,8 @@
         const pa = project3D(a.pos.x, a.pos.y, a.pos.z);
         const pb = project3D(b.pos.x, b.pos.y, b.pos.z);
 
-        const alpha = Math.max(0.05, Math.min(0.3, 0.15 * (pa.scale + pb.scale)));
-        ctx.strokeStyle = `rgba(74, 158, 255, ${alpha})`;
+        const alpha = Math.max(0.08, Math.min(0.4, 0.2 * (pa.scale + pb.scale)));
+        ctx.strokeStyle = `rgba(245, 158, 11, ${alpha})`;
         ctx.beginPath();
         ctx.moveTo(pa.x, pa.y);
         ctx.lineTo(pb.x, pb.y);
