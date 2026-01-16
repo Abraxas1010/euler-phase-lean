@@ -44,7 +44,7 @@ We humbly thank the collective intelligence of humanity for providing the techno
 <a href="https://abraxas1010.github.io/euler-phase-lean/RESEARCHER_BUNDLE/artifacts/visuals/euler_phase_2d.html">
   <img src="RESEARCHER_BUNDLE/artifacts/visuals/euler_phase_2d_preview.svg" alt="UMAP 2D preview" width="100%"/>
 </a><br/>
-<a href="https://abraxas1010.github.io/euler-phase-lean/RESEARCHER_BUNDLE/artifacts/visuals/euler_phase_2d.html">Open Interactive 2D Map</a>
+<a href="https://abraxas1010.github.io/euler-phase-lean/RESEARCHER_BUNDLE/artifacts/visuals/euler_phase_2d.html">▶ Open Interactive 2D Map</a>
 </td>
 <td align="center" width="50%">
 <strong>3D Proof Map</strong><br/>
@@ -52,7 +52,7 @@ We humbly thank the collective intelligence of humanity for providing the techno
 <a href="https://abraxas1010.github.io/euler-phase-lean/RESEARCHER_BUNDLE/artifacts/visuals/euler_phase_3d.html">
   <img src="RESEARCHER_BUNDLE/artifacts/visuals/euler_phase_3d_preview_animated.svg" alt="UMAP 3D animated preview" width="100%"/>
 </a><br/>
-<a href="https://abraxas1010.github.io/euler-phase-lean/RESEARCHER_BUNDLE/artifacts/visuals/euler_phase_3d.html">Open Interactive 3D Map</a>
+<a href="https://abraxas1010.github.io/euler-phase-lean/RESEARCHER_BUNDLE/artifacts/visuals/euler_phase_3d.html">▶ Open Interactive 3D Map</a>
 </td>
 </tr>
 </table>
