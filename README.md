@@ -424,10 +424,5 @@ This formalization provides machine-checked proofs for the mathematical framewor
 
 ## License
 
-MIT License - See [LICENSE](LICENSE) for details.
-
----
-
-<p align="center">
-Part of <a href="https://github.com/Abraxas1010/heyting">HeytingLean</a> | <a href="https://apoth3osis.io">apoth3osis.io</a>
-</p>
+This project is provided under the Apoth3osis License Stack v1.
+See `LICENSE.md` and the files under `licenses/`.
